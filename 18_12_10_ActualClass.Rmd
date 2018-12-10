@@ -70,7 +70,257 @@ as.character(crs(DSM_hill_HARV)) == as.character(crs(DSM_HARV))
 DSM_hill_HARV %>% as.data.frame(xy=TRUE) %>% ggplot() + geom_histogram( aes(x = HARV_DSMhill), bins = 50) + theme_bw()
 ```
 
+```{r}
+DSM_HARV_df<-DSM_HARV_df %>% 
+  mutate(fct_elevation=cut(HARV_dsmCrop, breaks=3))
+ggplot()+
+  geom_bar(data=DSM_HARV_df,aes(fct_elevation))
+```
+
+```{r}
+unique(DSM_HARV_df$fct_elevation)
+```
+
+```{r}
+DSM_HARV_df %>% group_by(fct_elevation) %>%
+  summarize(counts=n())
+```
+
+```{r}
+custom_bins<- c(300,350,400, 450)
+DSM_HARV_df<-DSM_HARV_df %>%
+  mutate(fct_elevation_2=cut(HARV_dsmCrop,breaks=custom_bins))
+unique(DSM_HARV_df$fct_elevation_2)
+ggplot()+
+  geom_bar(data=DSM_HARV_df,aes(fct_elevation_2))
+
+```
+
+```{r}
+DSM_HARV_df %>%
+  group_by(fct_elevation_2) %>%
+  summarize(counts=n())
+```
+```{r}
+ggplot()+
+  geom_raster(data = DSM_HARV_df,aes(x=x,y=y, fill= fct_elevation_2))+
+  coord_quickmap()
+```
+
+```{r}
+terrain.colors(3)
+```
+
+```{r}
+ggplot()+
+  geom_raster(data = DSM_HARV_df,aes(x=x,y=y, fill= fct_elevation_2))+
+  scale_fill_manual(values=terrain.colors(3))
+  coord_quickmap()
+```
+
+```{r}
+my_col<-terrain.colors(3)
+ggplot()+
+  geom_raster(data = DSM_HARV_df,aes(x=x,y=y, fill= fct_elevation_2))+
+  scale_fill_manual(values=my_col, name="Elevation")+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank())+
+
+  coord_quickmap()
+
+```
+challenge
+Create a plot of the Harvard Forest Digital Surface Model (DSM) that has:
+
+Six classified ranges of values (break points) that are evenly divided among the range of pixel values.
+Axis labels.
+A plot title.
+```{r}
+DSM_HARV_df<- DSM_HARV_df %>% 
+  mutate(fct_elevation_6=cut(HARV_dsmCrop, breaks=6))
+
+my_col<- terrain.colors(6)
+ggplot()+
+  geom_raster(data = DSM_HARV_df,aes(x=x,y=y, fill= fct_elevation_6))+
+  scale_fill_manual(values=my_col, name="Elevation")+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank())+
+
+  coord_quickmap()
+
+```
+```{r}
+DSM_hill_HARV <-
+  raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/DSM/HARV_DSMhill.tif")
+
+DSM_hill_HARV
+```
+```{r}
+DSM_hill_HARV_df<- as.data.frame(DSM_hill_HARV,xy=TRUE)
+```
+```{r}
+str(DSM_hill_HARV_df)
+```
+```{r}
+ggplot()+ geom_raster(data=DSM_hill_HARV_df, 
+                      aes(x=x, y=y, alpha=HARV_DSMhill))+
+                            scale_alpha(range=c(0.15,0.65),guide="none")+
+                            coord_quickmap()
+                            
+```
+
+```{r}
+ggplot()+
+  geom_raster(data = DSM_HARV_df,aes(x=x,y=y, fill=HARV_dsmCrop))+
+
+geom_raster(data=DSM_hill_HARV_df, 
+                      aes(x=x, y=y, alpha=HARV_DSMhill))+
+  scale_fill_viridis_c()+
+  scale_alpha(range = c(0.15,0.65),guide="none")+
+  ggtitle("Elevation with hillshade")+
+  coord_quickmap()
+  
+```
+```{r}
+# import DSM data
+DSM_SJER <- raster("data/NEON-DS-Airborne-Remote-Sensing/SJER/DSM/SJER_dsmCrop.tif")
+# convert to df for plotting
+DSM_SJER_df<-as.data.frame(DSM_SJER, xy=TRUE)
+#Import DMS hillShade
+DSM_hill_SJER<- raster("data/NEON-DS-Airborne-Remote-Sensing/SJER/DSM/SJER_dsmHill.tif")
+# conver to DF for plotting
+
+DSM_hill_SJER_df<-as.data.frame(DSM_hill_SJER, xy=TRUE)
+# build plot
+ggplot()+
+  geom_raster(data = DSM_SJER_df, 
+              aes(x=x, y=y, 
+                  fill=SJER_dsmCrop,
+                  alpha=0.8)
+              )+
+  geom_raster(data = DSM_hill_SJER_df,
+              aes(x=x,y=y, 
+                  alpha= SJER_dsmHill)
+              )+
+  scale_fill_viridis_c()+
+  guides(fill=guide_colorbar())+scale_alpha(range=c(0.4, 0.7), guide="none")
+  
+  # remove gray bachgropund nad grid lines
+  # theme_bw()+
+  # theme(panel.grid.major = element_blank(),
+  # panel.grid.m
+```
+
+```{r}
+
+DTM_HARV <- raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/DTM/HARV_dtmCrop.tif")
+
+DTM_hill_HARV<-  raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/DTM/HARV_DTMhill_WGS84.tif")
+
+# df
+DTM_HARV_df<- as.data.frame(DTM_HARV, xy=TRUE)
+DTM_hill_HARV_df<-as.data.frame(DTM_hill_HARV, xy=TRUE)
 
 
+```
 
+
+```{r}
+crs(DTM_HARV )
+```
+```{r}
+crs(DTM_hill_HARV)
+```
+```{r}
+# projectRaster
+DTM_hill_UTMZ18n_HAVR<- projectRaster(DTM_hill_HARV, crs = crs(DTM_HARV))
+```
+
+```{r}
+crs(DTM_hill_UTMZ18n_HAVR)
+```
+```{r}
+extent(DTM_hill_UTMZ18n_HAVR)
+```
+
+```{r}
+extent(DTM_hill_HARV)
+```
+
+```{r}
+res(DTM_hill_UTMZ18n_HAVR)
+```
+
+```{r}
+res(DTM_hill_HARV)
+```
+```{r}
+DTM_hill_UTMZ18N_HAVR <- projectRaster(DTM_hill_HARV, crs = crs(DTM_HARV), res=c(1,1))
+```
+```{r}
+res(DTM_hill_UTMZ18N_HAVR )
+```
+
+```{r}
+crs(DTM_hill_UTMZ18N_HAVR )
+```
+```{r}
+DTM_hill_HARV_2_df<- as.data.frame(DTM_hill_UTMZ18N_HAVR, xy=TRUE)
+```
+
+```{r}
+ggplot()+
+  geom_raster(data = DTM_HARV_df,
+              aes(x=x, y=y, 
+                  fill = HARV_d
+                  tmCrop))+
+geom_raster(data = DTM_hill_HARV_2_df,
+            aes(x=x,y=y,
+                alpha=HARV_DTMhill_WGS84))+
+  scale_fill_gradientn(name="Elevation", colors=terrain.colors(10))+
+  coord_quickmap()
+```
+calculate the difference between two raster
+1- subtracting
+2-overlay()
+
+```{r}
+CHM_HARV <- DSM_HARV -DTM_HARV
+#df
+CHM_HARV_df<- as.data.frame(CHM_HARV ,xy=TRUE)
+
+```
+
+```{r}
+
+ggplot()+
+  geom_raster(data= CHM_HARV_df, 
+              aes(x=x, y=y, fill=layer))+
+  scale_fill_gradientn(name="Canpoy Height", colors = terrain.colors(10))+
+  coord_quickmap()
+```
+```{r}
+ggplot(CHM_HARV_df)+geom_histogram(aes(layer))
+```
+
+```{r}
+CHM_ov_HARV <- overlay(DSM_HARV,DTM_HARV,
+                       fun= function(r1,r2) {return(r1-r2)})
+```
+```{r}
+# dataframe
+CHM_ov_HARV_df<- as.data.frame(CHM_ov_HARV, xy=TRUE)
+```
+
+```{r}
+ggplot()+
+  geom_raster(data= CHM_ov_HARV_df, 
+              aes(x=x, y=y, fill=layer))+
+  scale_fill_gradientn(name="Canpoy Height", colors = terrain.colors(10))+
+  coord_quickmap()
+```
+```{r}
+# export a geoTiff
+writeRaster(CHM_ov_HARV,"CHM_HARV.tiff", format="GTiff", overwrite=TRUE, NAflag=-9999)
+```
 
