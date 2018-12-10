@@ -1,0 +1,76 @@
+---
+title: "GIS workshop"
+author: "Darya Vanichkina"
+date: "10/12/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rgdal)
+library(raster)
+library(tidyverse)
+GDALinfo("data/NEON-DS-Airborne-Remote-Sensing/HARV/DSM/HARV_dsmCrop.tif")
+DSM_HARV <- raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/DSM/HARV_dsmCrop.tif")
+DSM_HARV
+summary(DSM_HARV)
+summary(DSM_HARV, maxsamp = ncell(DSM_HARV))
+DSM_HARV_df <- as.data.frame(DSM_HARV, xy = TRUE)
+str(DSM_HARV_df)
+```
+
+Plot data using ggplot
+
+```{r}
+ggplot() + geom_raster(data = DSM_HARV_df, aes(x = x, y = y, fill = HARV_dsmCrop)) + scale_fill_viridis_c() + coord_quickmap() + theme_bw()
+```
+CRS?
+
+```{r}
+crs(DSM_HARV)
+```
+
+
+Min and max of this raster?
+
+```{r}
+DSM_HARV
+minValue(DSM_HARV)
+maxValue(DSM_HARV)
+# if it wasn't known
+DSM_HARV <- setMinMax(DSM_HARV)
+```
+
+```{r}
+GDALinfo("data/NEON-DS-Airborne-Remote-Sensing/HARV/DSM/HARV_dsmCrop.tif")
+nlayers(DSM_HARV)
+```
+Missing data?
+
+Bad data values
+```{r}
+ggplot() + geom_histogram(data = DSM_HARV_df, aes(x = HARV_dsmCrop), bins = 50) + theme_bw()
+```
+
+Challenge:
+Explore HARV_DSMhill.tif
+
+1. Does this file have the same CRS? Yes
+2. What is the NoDataValue? -9999
+3. Resolution?  Same as DSM_HARV? 1m x 1 m ; yes
+4. How large would a 5x5 pixel be? 5m x 5m 
+5. Single or multiband raster? single
+6. Bad values?
+
+```{r}
+GDALinfo("data/NEON-DS-Airborne-Remote-Sensing/HARV/DSM/HARV_DSMhill.tif")
+DSM_hill_HARV <- raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/DSM/HARV_DSMhill.tif")
+as.character(crs(DSM_hill_HARV)) == as.character(crs(DSM_HARV))
+
+DSM_hill_HARV %>% as.data.frame(xy=TRUE) %>% ggplot() + geom_histogram( aes(x = HARV_DSMhill), bins = 50) + theme_bw()
+```
+
+
+
+
+
