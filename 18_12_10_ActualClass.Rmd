@@ -323,4 +323,245 @@ ggplot()+
 # export a geoTiff
 writeRaster(CHM_ov_HARV,"CHM_HARV.tiff", format="GTiff", overwrite=TRUE, NAflag=-9999)
 ```
+ ## git
+```{r}
+RGB_band1_HARV <- raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/RGB_Imagery/HARV_RGB_Ortho.tif")
+```
+```{r}
+RGB_band1_HARV_df  <- as.data.frame(RGB_band1_HARV, xy = TRUE)
+
+```
+
+```{r}
+ggplot() +
+  geom_raster(data = RGB_band1_HARV_df,
+              aes(x = x, y = y, alpha = HARV_RGB_Ortho)) + 
+  coord_quickmap()
+```
+
+```{r}
+RGB_band1_HARV
+```
+
+```{r}
+nbands(RGB_band1_HARV)
+nlayers(RGB_band1_HARV)
+```
+```{r}
+RGB_band2_HARV <-  raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/RGB_Imagery/HARV_RGB_Ortho.tif", band = 2)
+
+```
+
+```{r}
+RGB_band2_HARV_df <- as.data.frame(RGB_band2_HARV, xy = TRUE)
+
+```
+```{r}
+RGB_stack_HARV <- stack("data/NEON-DS-Airborne-Remote-Sensing/HARV/RGB_Imagery/HARV_RGB_Ortho.tif")
+```
+
+```{r}
+RGB_stack_HARV
+
+```
+
+```{r}
+RGB_stack_HARV@layers
+```
+
+```{r}
+RGB_stack_HARV[[2]]
+
+```
+```{r}
+
+RGB_band1_HARV<- raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/RGB_Imagery/HARV_RGB_Ortho.tif")
+RGB_band1_HARV_df<- as.data.frame(RGB_band1_HARV,xy=TRUE)
+ggplot()+
+  geom_raster(data = RGB_band1_HARV_df, aes(x=x, y=y, alpha=HARV_RGB_Ortho))+
+  coord_quickmap()
+```
+
+```{r}
+RGB_band1_HARV
+```
+```{r}
+
+RGB_band2_HARV<- raster("data/NEON-DS-Airborne-Remote-Sensing/HARV/RGB_Imagery/HARV_RGB_Ortho.tif", band=2)
+RGB_band2_HARV_df<- as.data.frame(RGB_band2_HARV,xy=TRUE)
+ggplot()+
+  geom_raster(data = RGB_band2_HARV_df, aes(x=x, y=y, alpha=HARV_RGB_Ortho))+
+  coord_quickmap()
+```
+```{r}
+  RGB_stack_HARV<-stack("data/NEON-DS-Airborne-Remote-Sensing/HARV/RGB_Imagery/HARV_RGB_Ortho.tif")
+
+ RGB_stack_HARV
+
+ RGB_stack_HARV@layers
+
+RGB_stack_HARV[[2]]
+```
+```{r}
+# plotting
+RGB_stack_HARV_df<-as.data.frame(RGB_stack_HARV,xy=TRUE)
+```
+
+```{r}
+str(RGB_band1_HARV_df)
+```
+
+```{r}
+str(RGB_stack_HARV_df)
+```
+```{r}
+ggplot()+
+  geom_histogram(data=RGB_stack_HARV_df, aes(HARV_RGB_Ortho.1))
+```
+```{r}
+ggplot()+
+  geom_raster(data=RGB_stack_HARV_df, aes(x=x, y=y, alpha=HARV_RGB_Ortho.2))+
+  coord_quickmap()
+```
+
+```{r}
+ plotRGB(RGB_stack_HARV, r=1, g=2, b=3)
+```
+```{r}
+plotRGB(RGB_stack_HARV, r=1, g=2, b=3, scale=800,  stretch="hist")
+```
+
+```{r}
+plotRGB(RGB_stack_HARV, r=1, g=2, b=3, scale=800,  stretch="lin")
+```
+```{r}
+RGB_brick_HARV<- brick(RGB_stack_HARV)
+```
+```{r}
+object.size(RGB_stack_HARV)
+```
+```{r}
+object.size(RGB_brick_HARV)
+```
+```{r}
+methods(class= class(RGB_stack_HARV))
+methods(class=class(RGB_stack_HARV[1]))
+
+```
+
+```{r}
+library(sf)
+aoi_boundary_HARV <- st_read("data/NEON-DS-Site-Layout-Files/HARV/HarClip_UTMZ18.shp")
+```
+
+```{r}
+st_geometry_type(aoi_boundary_HARV)
+levels(st_geometry_type(aoi_boundary_HARV))
+st_crs(aoi_boundary_HARV)
+st_bbox(aoi_boundary_HARV)
+ncol(aoi_boundary_HARV)
+ggplot() + geom_sf(data = aoi_boundary_HARV, size = 3, colour = "black", fill = "cyan1") +
+  ggtitle("AOI boundary plot") +
+  coord_sf()
+
+
+```
+
+```{r}
+# import HARV roads and HARV tower UTM18N layers as two shapefiles
+# lines_HARV
+# HARVtower_UTM18N
+
+lines_HARV <- st_read("data/NEON-DS-Site-Layout-Files/HARV/HARV_roads.shp")
+point_HARV <- st_read("data/NEON-DS-Site-Layout-Files/HARV/HARVtower_UTM18N.shp")
+# Q1: what type object?
+# Q2: what is the CRS and extent?
+# Q3: Points/lines/polygons?
+# Q4: How many spatial objects in each file?
+```
+
+
+
+```{r}
+names(lines_HARV)
+class(lines_HARV)
+head(lines_HARV)
+summary(lines_HARV)
+```
+
+
+```{r}
+levels(lines_HARV$TYPE)
+table(lines_HARV$TYPE)
+head(lines_HARV)
+
+lines_HARV %>% filter(TYPE == "footpath") %>% ggplot() + geom_sf(aes(color = as.factor(OBJECTID_1) ), size = 1.5) +ggtitle("NEON HARV field site", subtitle = "Footpath") + coord_sf() + theme_bw() + labs(color = "FootpathID")
+#  Plot only the boardwalk (no new object!)
+lines_HARV %>% filter(TYPE == "boardwalk") %>% ggplot() + geom_sf() + ggtitle("HARV", subtitle = "Boardwalk") + coord_sf() + theme_bw()
+# Plot only the stone walls (no new object)
+
+lines_HARV %>% filter(TYPE == "stone wall") %>% ggplot() + geom_sf(aes(col = as.factor(OBJECTID_1))) +coord_sf() + theme_bw()
+```
+
+
+```{r}
+lines_HARV %>% ggplot() + geom_sf(aes(col = as.factor(OBJECTID_1), size = TYPE)) + labs(col= "ObjectID") + scale_size_manual(values = c(1,2,3,4)) + coord_sf() + theme_bw() 
+```
+
+```{r}
+# install.packages("tmap")
+library(tmap)
+tm_shape(lines_HARV) + tm_lines("TYPE", palette = "Set2")
+```
+
+Challenge: plot lines by attribute (using ggplot)
+Create a plot which emphasises only roads where bicycles and horses are allowed. Make lines where they ARE allowed thinner and in a bright color. Add a title and legend to the plot. Make roads where they're not allowed black. 
+
+```{r}
+BikeHorseAllowed <- lines_HARV %>% filter(BicyclesHo == "Bicycles and Horses Allowed")
+ggplot() + 
+  geom_sf(data = lines_HARV) +
+  geom_sf(data = BikeHorseAllowed, aes(col = BicyclesHo),  size = 2, col = "magenta")
+
+lines_HARV %>% filter(BicyclesHo == "Bicycles and Horses Allowed") %>% ggplot() + geom_sf(aes(col = BicyclesHo),  size = 2, col = "magenta") + geom_sf(data = lines_HARV)
+
+```
+
+
+
+```{r}
+# state boundaries US
+state_boundary_US <- st_read("data/NEON-DS-Site-Layout-Files/US-Boundary-Layers/US-State-Boundaries-Census-2014.shp")
+# Create a map of US State Boundaries coloured by region. 
+
+state_boundary_US %>% ggplot() + geom_sf(aes(col= region)) + theme_minimal() + coord_sf()
+
+tm_shape(state_boundary_US) + tm_polygons("region", palette = "Set3")
+tm_shape(state_boundary_US) + tm_borders()
+tm_shape(state_boundary_US) + tm_fill("region", palette = "Set3")
+
+plot(state_boundary_US["region"])
+```
+
+```{r}
+#point_HARV <- whatvert
+ggplot() + geom_sf(data = aoi_boundary_HARV, fill = "pink", col = "pink") +
+  geom_sf(data = point_HARV, aes(fill = Sub_Type), shape = 15) +
+  geom_sf(data = lines_HARV, aes(col = TYPE), show.legend = "line", size = 1)
+```
+Plot raster AND vector together:
+
+- CHM raster from yesterday
+- lines_HARV
+- aoi_boundary_HARV
+- point_HARV
+
+```{r}
+ggplot() + geom_raster(data = CHM_HARV_df, aes(x = x, y = y, fill = layer))  + 
+  geom_sf(data = lines_HARV, color = "black") +
+  geom_sf(data = aoi_boundary_HARV, colour = "grey20", size = 1) + 
+  geom_sf(data = point_HARV, pch = 8)
+
+tm_shape(CHM_HARV) + tm_raster(alpha = 0.8) + tm_shape(lines_HARV) + tm_lines() + tm_shape(aoi_boundary_HARV) + tm_borders("blue") + tm_shape(point_HARV) + tm_symbols(size = 0.25, col = "red")
+```
 
